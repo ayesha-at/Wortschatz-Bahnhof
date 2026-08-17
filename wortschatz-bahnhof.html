@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wortschatz-Bahnhof</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Work+Sans:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap');
+
+:root{
+  --bg:#0e121a;
+  --panel:#171d2b;
+  --panel-2:#1f2740;
+  --line:#2b3350;
+  --line-soft:#232a42;
+  --amber:#ffb734;
+  --amber-dim:#8a6224;
+  --ink:#e3e7f2;
+  --ink-soft:#8e97b5;
+  --ink-faint:#5b6382;
+  --der:#5b8fd9;
+  --der-bg:rgba(91,143,217,.16);
+  --die:#e2617e;
+  --die-bg:rgba(226,97,126,.16);
+  --das:#57bd8a;
+  --das-bg:rgba(87,189,138,.16);
+  --radius:14px;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(1100px 500px at 50% -10%, #1a2136 0%, var(--bg) 55%),
+    var(--bg);
+  color:var(--ink);
+  font-family:'Work Sans',system-ui,sans-serif;
+  min-height:100vh;
+  padding:18px 14px 60px;
+  display:flex;
+  justify-content:center;
+}
+.wrap{width:100%; max-width:640px;}
+.mono{font-family:'Space Mono',ui-monospace,'Courier New',monospace;}
+
+/* ---------- header board ---------- */
+.board-head{
+  background:linear-gradient(180deg,var(--panel-2),var(--panel));
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:16px 18px;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 1px 0 rgba(255,255,255,.03) inset, 0 20px 40px -25px rgba(0,0,0,.7);
+}
+.board-head::before{
+  content:"";
+  position:absolute; left:0; top:0; right:0; height:3px;
+  background:repeating-linear-gradient(90deg,var(--amber) 0 10px, transparent 10px 20px);
+  opacity:.55;
+}
+.head-row{display:flex; align-items:flex-start; justify-content:space-between; gap:10px;}
+.brand-eyebrow{
+  font-family:'Space Mono',monospace; font-size:10.5px; letter-spacing:.22em;
+  color:var(--ink-faint); text-transform:uppercase; margin:0 0 4px;
+}
+.brand-title{
+  font-family:'Space Mono',monospace; font-weight:700; font-size:22px;
+  letter-spacing:.02em; color:var(--amber); margin:0;
+  text-shadow:0 0 18px rgba(255,183,52,.25);
+}
+.brand-sub{font-size:12.5px; color:var(--ink-soft); margin:4px 0 0;}
+
+.stat-cluster{display:flex; gap:8px;}
+.stat-flap{
+  background:#0c101a; border:1px solid var(--line); border-radius:8px;
+  padding:6px 10px; text-align:center; min-width:52px;
+}
+.stat-flap .num{font-family:'Space Mono',monospace; font-weight:700; font-size:17px; color:var(--ink); line-height:1;}
+.stat-flap .lbl{font-size:8.5px; letter-spacing:.1em; color:var(--ink-faint); text-transform:uppercase; margin-top:3px;}
+.stat-flap.streak .num{color:var(--amber);}
+
+.prog-track{margin-top:14px; height:6px; border-radius:4px; background:#0c101a; border:1px solid var(--line); overflow:hidden;}
+.prog-fill{height:100%; background:linear-gradient(90deg,var(--das),#7fd6a8); width:0%; transition:width .5s ease;}
+.prog-label{display:flex; justify-content:space-between; font-size:10.5px; color:var(--ink-faint); margin-top:6px; font-family:'Space Mono',monospace;}
+
+/* ---------- platform tabs (Gleise) ---------- */
+.gleise{display:flex; gap:8px; margin-top:14px;}
+.gleis-btn{
+  flex:1; background:var(--panel); border:1px solid var(--line); border-radius:10px;
+  padding:10px 6px 9px; text-align:center; cursor:pointer; color:var(--ink-soft);
+  transition:border-color .15s, color .15s, background .15s, transform .1s;
+}
+.gleis-btn:active{transform:scale(.97);}
+.gleis-btn .gnum{font-family:'Space Mono',monospace; font-size:9.5px; color:var(--ink-faint); letter-spacing:.14em;}
+.gleis-btn .glabel{font-size:12.5px; font-weight:600; margin-top:2px;}
+.gleis-btn .gsub{font-size:9.5px; color:var(--ink-faint); margin-top:1px;}
+.gleis-btn.active .gsub{color:var(--amber-dim);}
+.gleis-btn.active{border-color:var(--amber); background:linear-gradient(180deg,rgba(255,183,52,.10),rgba(255,183,52,.03)); color:var(--amber);}
+.gleis-btn.active .gnum{color:var(--amber-dim);}
+
+/* ---------- filter chips ---------- */
+.filters{display:flex; gap:7px; margin:14px 2px 0; flex-wrap:wrap;}
+.chip{
+  font-family:'Space Mono',monospace; font-size:11px; padding:9px 12px; border-radius:20px;
+  border:1px solid var(--line); color:var(--ink-soft); cursor:pointer; background:var(--panel);
+  transition:all .15s; min-height:34px; display:flex; align-items:center;
+}
+.chip.active{color:#10141c; border-color:transparent;}
+.chip[data-g="all"].active{background:var(--ink); }
+.chip[data-g="der"].active{background:var(--der);}
+.chip[data-g="die"].active{background:var(--die);}
+.chip[data-g="das"].active{background:var(--das);}
+
+/* ---------- main panel ---------- */
+.panel{
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+  margin-top:14px; padding:22px 18px 20px; min-height:360px;
+  display:flex; flex-direction:column;
+}
+.mode-view{display:none;}
+.mode-view.active{display:flex; flex-direction:column; flex:1;}
+
+/* session progress */
+.session-bar{display:flex; align-items:center; gap:10px; margin-bottom:18px;}
+.session-track{flex:1; height:4px; background:#0c101a; border-radius:3px; overflow:hidden; border:1px solid var(--line-soft);}
+.session-fill{height:100%; background:var(--amber); width:0%; transition:width .3s;}
+.session-count{font-family:'Space Mono',monospace; font-size:11px; color:var(--ink-faint); white-space:nowrap;}
+
+/* flashcard */
+.card-stage{flex:1; display:flex; align-items:center; justify-content:center; padding:10px 0 22px;}
+.flap-card{
+  width:100%; max-width:400px; background:#0c101a; border:1px solid var(--line);
+  border-radius:12px; padding:34px 22px 26px; text-align:center; position:relative;
+  box-shadow:0 30px 60px -35px rgba(0,0,0,.8);
+}
+.gender-tag{
+  display:inline-block; font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.14em;
+  padding:4px 11px; border-radius:20px; background:var(--panel-2); color:var(--ink-faint); margin-bottom:14px;
+}
+.noun-word{font-size:32px; font-weight:700; color:var(--ink); line-height:1.15; word-break:break-word;}
+.article-slot{
+  margin:20px auto 4px; height:46px; display:flex; align-items:center; justify-content:center;
+}
+.article-flap{
+  font-family:'Space Mono',monospace; font-weight:700; font-size:22px; letter-spacing:.08em;
+  padding:8px 22px; border-radius:9px; border:1px solid var(--line); color:var(--ink-faint);
+  background:var(--panel-2); min-width:120px;
+}
+.article-flap.der{color:var(--der); border-color:var(--der); background:var(--der-bg);}
+.article-flap.die{color:var(--die); border-color:var(--die); background:var(--die-bg);}
+.article-flap.das{color:var(--das); border-color:var(--das); background:var(--das-bg);}
+.translation{font-size:14.5px; color:var(--ink-soft); margin-top:12px; min-height:20px; opacity:0; transition:opacity .3s;}
+.translation.show{opacity:1;}
+.plural-note{
+  font-size:11.5px; color:var(--amber-dim); background:rgba(255,183,52,.07);
+  border:1px solid rgba(255,183,52,.25); border-radius:8px; padding:8px 10px;
+  margin-top:12px; line-height:1.45; text-align:left; opacity:0; max-height:0; overflow:hidden;
+  transition:opacity .3s;
+}
+.plural-note.show{opacity:1; max-height:200px; margin-top:12px;}
+.plural-note b{color:var(--amber);}
+
+.tap-hint{font-size:11.5px; color:var(--ink-faint); margin-top:16px; font-family:'Space Mono',monospace;}
+
+.card-actions{display:flex; gap:10px; margin-top:20px;}
+.act-btn{
+  flex:1; padding:14px 8px; border-radius:11px; border:1px solid var(--line); background:var(--panel-2);
+  color:var(--ink-soft); font-weight:600; font-size:14px; cursor:pointer; transition:all .15s;
+  min-height:48px;
+}
+.act-btn:active{transform:scale(.97);}
+.act-btn.again{color:var(--die); border-color:var(--die);}
+.act-btn.know{color:var(--das); border-color:var(--das);}
+.act-btn:disabled{opacity:.35; pointer-events:none;}
+
+.reveal-btn{
+  padding:14px; border-radius:11px; border:1px solid var(--amber); background:rgba(255,183,52,.08);
+  color:var(--amber); font-weight:700; font-size:14px; cursor:pointer; font-family:'Space Mono',monospace;
+  letter-spacing:.05em; min-height:48px;
+}
+.reveal-btn:active{transform:scale(.97);}
+
+/* quiz */
+.quiz-word{font-size:30px; font-weight:700; text-align:center; margin:6px 0 6px; line-height:1.2;}
+.quiz-en{text-align:center; color:var(--ink-soft); font-size:13px; margin-bottom:26px;}
+.quiz-btns{display:flex; gap:10px; margin-top:auto;}
+.qbtn{
+  flex:1; padding:18px 6px; border-radius:12px; border:2px solid var(--line); background:var(--panel-2);
+  font-family:'Space Mono',monospace; font-weight:700; font-size:16px; letter-spacing:.06em; cursor:pointer;
+  color:var(--ink-soft); transition:all .12s; min-height:52px;
+}
+.qbtn:active{transform:scale(.96);}
+.qbtn.der{color:var(--der);} .qbtn.die{color:var(--die);} .qbtn.das{color:var(--das);}
+.qbtn.correct{background:var(--das-bg); border-color:var(--das); color:var(--das);}
+.qbtn.wrong{background:var(--die-bg); border-color:var(--die); color:var(--die);}
+.qbtn:disabled{pointer-events:none;}
+.qbtn.dim:disabled{opacity:.3;}
+
+.quiz-feedback{text-align:center; min-height:22px; font-size:13px; color:var(--ink-soft); margin:14px 0 2px;}
+.quiz-next{margin-top:10px;}
+
+.quiz-stats{display:flex; justify-content:center; gap:22px; margin-bottom:10px; font-family:'Space Mono',monospace; font-size:12px; color:var(--ink-faint);}
+.quiz-stats b{color:var(--ink);}
+
+/* sort mode */
+.sort-pre{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:14px;}
+.sort-pre h3{margin:0; font-size:18px;}
+.sort-pre p{margin:0; color:var(--ink-soft); font-size:13px; max-width:320px; line-height:1.5;}
+.big-btn{
+  font-family:'Space Mono',monospace; font-weight:700; letter-spacing:.05em; font-size:15px;
+  padding:15px 28px; border-radius:12px; border:1px solid var(--amber); background:rgba(255,183,52,.1);
+  color:var(--amber); cursor:pointer;
+}
+.big-btn:active{transform:scale(.97);}
+
+.sort-hud{display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;}
+.timer-flap{font-family:'Space Mono',monospace; font-size:26px; font-weight:700; color:var(--amber); background:#0c101a; border:1px solid var(--line); border-radius:9px; padding:6px 16px;}
+.score-flap{font-family:'Space Mono',monospace; font-size:14px; color:var(--ink-soft);}
+.score-flap b{color:var(--ink); font-size:18px;}
+
+.sort-word{font-size:30px; font-weight:700; text-align:center; margin:20px 0 30px;}
+
+.sort-result{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px;}
+.sort-result .big-score{font-family:'Space Mono',monospace; font-size:44px; font-weight:700; color:var(--amber);}
+.sort-result .sub{color:var(--ink-soft); font-size:13px; margin-bottom:14px;}
+
+/* footer */
+.foot-note{text-align:center; color:var(--ink-faint); font-size:11px; margin-top:18px; font-family:'Space Mono',monospace; letter-spacing:.03em;}
+
+@media (max-width:380px){
+  .noun-word{font-size:27px;}
+  .quiz-word{font-size:25px;}
+  .sort-word{font-size:25px;}
+  .brand-title{font-size:19px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="board-head">
+    <div class="head-row">
+      <div>
+        <p class="brand-eyebrow">Now&nbsp;boarding · A1–A2</p>
+        <h1 class="brand-title">WORTSCHATZ‑BAHNHOF</h1>
+        <p class="brand-sub">Daily practice for der / die / das</p>
+      </div>
+      <div class="stat-cluster">
+        <div class="stat-flap streak"><div class="num mono" id="streakNum">0</div><div class="lbl">Streak</div></div>
+        <div class="stat-flap"><div class="num mono" id="masteredNum">0</div><div class="lbl">Mastered</div></div>
+      </div>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+    <div class="prog-label"><span id="progText">0 / 259 mastered</span><span id="progPct">0%</span></div>
+
+    <div class="gleise">
+      <div class="gleis-btn active" data-mode="cards"><div class="gnum mono">GLEIS 1</div><div class="glabel">Karteikarten</div><div class="gsub">Flashcards</div></div>
+      <div class="gleis-btn" data-mode="quiz"><div class="gnum mono">GLEIS 2</div><div class="glabel">Artikel‑Quiz</div><div class="gsub">Article Quiz</div></div>
+      <div class="gleis-btn" data-mode="sort"><div class="gnum mono">GLEIS 3</div><div class="glabel">Sortierbahnhof</div><div class="gsub">Sorting Game</div></div>
+    </div>
+  </div>
+
+  <div class="filters" id="filters">
+    <div class="chip active" data-g="all">ALL</div>
+    <div class="chip" data-g="der">DER</div>
+    <div class="chip" data-g="die">DIE</div>
+    <div class="chip" data-g="das">DAS</div>
+    <div class="chip" data-g="due" style="margin-left:auto;">DUE ONLY</div>
+  </div>
+
+  <div class="panel">
+
+    <!-- MODE 1: FLASHCARDS -->
+    <div class="mode-view active" id="view-cards">
+      <div class="session-bar">
+        <div class="session-track"><div class="session-fill" id="cardsSessFill"></div></div>
+        <div class="session-count mono" id="cardsSessCount">0 / 0</div>
+      </div>
+      <div class="card-stage">
+        <div class="flap-card" id="flapCard">
+          <div class="gender-tag" id="cardGenderTag">NOUN</div>
+          <div class="noun-word" id="cardNoun">—</div>
+          <div class="article-slot"><div class="article-flap" id="cardArticleFlap">···</div></div>
+          <div class="translation" id="cardTranslation"></div>
+          <div class="plural-note" id="cardPluralNote"></div>
+          <div class="tap-hint" id="cardHint">Tap "Show article"</div>
+        </div>
+      </div>
+      <button class="reveal-btn" id="revealBtn">SHOW ARTICLE</button>
+      <div class="card-actions" style="margin-top:12px;">
+        <button class="act-btn again" id="againBtn" disabled>↺ Practice again</button>
+        <button class="act-btn know" id="knowBtn" disabled>✓ Got it!</button>
+      </div>
+    </div>
+
+    <!-- MODE 2: QUIZ -->
+    <div class="mode-view" id="view-quiz">
+      <div class="quiz-stats"><span>Correct: <b id="quizCorrect">0</b></span><span>Streak: <b id="quizStreak">0</b></span><span>Total: <b id="quizTotal">0</b></span></div>
+      <div class="quiz-word" id="quizNoun">—</div>
+      <div class="quiz-en" id="quizEn"></div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <div class="quiz-btns">
+        <button class="qbtn der" data-g="der">DER</button>
+        <button class="qbtn die" data-g="die">DIE</button>
+        <button class="qbtn das" data-g="das">DAS</button>
+      </div>
+      <button class="reveal-btn quiz-next" id="quizNextBtn" style="display:none;">NEXT →</button>
+    </div>
+
+    <!-- MODE 3: SORT GAME -->
+    <div class="mode-view" id="view-sort">
+      <div class="sort-pre" id="sortPre">
+        <h3>Sortierbahnhof <span style="color:var(--ink-faint); font-weight:500; font-size:13px;">— Sorting Station</span></h3>
+        <p>45 seconds. Words come in — send each one to the right platform: DER, DIE, or DAS. Best score: <b id="sortBestPre" class="mono">0</b></p>
+        <button class="big-btn" id="sortStartBtn">START TRAIN</button>
+      </div>
+      <div id="sortGame" style="display:none; flex:1; flex-direction:column;">
+        <div class="sort-hud">
+          <div class="timer-flap mono" id="sortTimer">45</div>
+          <div class="score-flap">Score<br><b id="sortScore">0</b></div>
+        </div>
+        <div class="sort-word" id="sortWord">—</div>
+        <div class="quiz-btns">
+          <button class="qbtn der" data-g="der">DER</button>
+          <button class="qbtn die" data-g="die">DIE</button>
+          <button class="qbtn das" data-g="das">DAS</button>
+        </div>
+      </div>
+      <div id="sortResult" class="sort-result" style="display:none;">
+        <div style="font-size:12px; color:var(--ink-faint); letter-spacing:.14em;" class="mono">TRAIN ARRIVED</div>
+        <div class="big-score" id="sortFinalScore">0</div>
+        <div class="sub" id="sortFinalSub">sorted correctly</div>
+        <button class="big-btn" id="sortAgainBtn">PLAY AGAIN</button>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="foot-note">259 nouns · A1/A2 · your progress is saved automatically</p>
+</div>
+
+<script>
+const WORDS = [{"noun":"Auge","article":"das","plural":null,"en":"Eye","note":null,"pluralArticleDiffers":null},{"noun":"Auto","article":"das","plural":null,"en":"Car","note":null,"pluralArticleDiffers":null},{"noun":"Bahnticket","article":"das","plural":null,"en":"Train Ticket","note":null,"pluralArticleDiffers":null},{"noun":"Bein","article":"das","plural":null,"en":"Leg","note":null,"pluralArticleDiffers":null},{"noun":"Bett","article":"das","plural":null,"en":"Bed","note":null,"pluralArticleDiffers":null},{"noun":"Bier","article":"das","plural":null,"en":"Beer","note":null,"pluralArticleDiffers":null},{"noun":"Bild","article":"das","plural":null,"en":"Picture","note":null,"pluralArticleDiffers":null},{"noun":"Boot","article":"das","plural":null,"en":"The Boat","note":null,"pluralArticleDiffers":null},{"noun":"Brot","article":"das","plural":null,"en":"Bread","note":null,"pluralArticleDiffers":null},{"noun":"Brötchen","article":"das","plural":null,"en":"Bread Roll","note":null,"pluralArticleDiffers":null},{"noun":"Bücherregal","article":"das","plural":null,"en":"The Bookshelf","note":null,"pluralArticleDiffers":null},{"noun":"Café","article":"das","plural":null,"en":"Café","note":null,"pluralArticleDiffers":null},{"noun":"Datum","article":"das","plural":null,"en":"Date","note":null,"pluralArticleDiffers":null},{"noun":"Ei","article":"das","plural":null,"en":"Egg","note":null,"pluralArticleDiffers":null},{"noun":"Flugticket","article":"das","plural":null,"en":"Flight Ticket","note":null,"pluralArticleDiffers":null},{"noun":"Geld","article":"das","plural":null,"en":"Money","note":null,"pluralArticleDiffers":null},{"noun":"Gleis","article":"das","plural":null,"en":"Track","note":null,"pluralArticleDiffers":null},{"noun":"Haar","article":"das","plural":"Haare","en":"Hair","note":"The plural (Haare) takes 'die' — that's the plural marker every German noun gets, not a sign of gender. The singular is das Haar.","pluralArticleDiffers":true},{"noun":"Haltesignal","article":"das","plural":null,"en":"Stop Signal","note":null,"pluralArticleDiffers":null},{"noun":"Handy","article":"das","plural":null,"en":"Cell Phone","note":null,"pluralArticleDiffers":null},{"noun":"Hemd","article":"das","plural":null,"en":"Shirt","note":null,"pluralArticleDiffers":null},{"noun":"Hotel","article":"das","plural":null,"en":"Hotel","note":null,"pluralArticleDiffers":null},{"noun":"Hühnerfleisch","article":"das","plural":null,"en":"Chicken","note":null,"pluralArticleDiffers":null},{"noun":"Jahr","article":"das","plural":null,"en":"Year","note":null,"pluralArticleDiffers":null},{"noun":"Kind","article":"das","plural":"Kinder","en":"Child","note":"The plural (Kinder) takes 'die' — that's the plural marker every German noun gets, not a sign of gender. The singular is das Kind.","pluralArticleDiffers":true},{"noun":"Kino","article":"das","plural":null,"en":"Cinema","note":null,"pluralArticleDiffers":null},{"noun":"Kleid","article":"das","plural":null,"en":"Dress","note":null,"pluralArticleDiffers":null},{"noun":"Knie","article":"das","plural":null,"en":"Knee","note":null,"pluralArticleDiffers":null},{"noun":"Kopfkissen","article":"das","plural":null,"en":"Pillow","note":null,"pluralArticleDiffers":null},{"noun":"Kunstmuseum","article":"das","plural":null,"en":"Art Museum","note":null,"pluralArticleDiffers":null},{"noun":"Lehrbuch","article":"das","plural":null,"en":"Textbook","note":null,"pluralArticleDiffers":null},{"noun":"Medikament","article":"das","plural":null,"en":"Medication","note":null,"pluralArticleDiffers":null},{"noun":"Motorrad","article":"das","plural":null,"en":"Motorcycle","note":null,"pluralArticleDiffers":null},{"noun":"Ohr","article":"das","plural":null,"en":"Ear","note":null,"pluralArticleDiffers":null},{"noun":"Ohropax","article":"das","plural":null,"en":"Earplugs","note":null,"pluralArticleDiffers":null},{"noun":"Problem","article":"das","plural":null,"en":"Problem","note":null,"pluralArticleDiffers":null},{"noun":"Restaurant","article":"das","plural":null,"en":"Restaurant","note":null,"pluralArticleDiffers":null},{"noun":"Rindfleisch","article":"das","plural":null,"en":"Beef","note":null,"pluralArticleDiffers":null},{"noun":"Sauerkraut","article":"das","plural":null,"en":"Sauerkraut","note":null,"pluralArticleDiffers":null},{"noun":"Schiff","article":"das","plural":null,"en":"Ship","note":null,"pluralArticleDiffers":null},{"noun":"Sicherheitspersonal","article":"das","plural":null,"en":"Security Personnel","note":null,"pluralArticleDiffers":null},{"noun":"Sofa","article":"das","plural":null,"en":"Sofa","note":null,"pluralArticleDiffers":null},{"noun":"Studio","article":"das","plural":null,"en":"Studio","note":null,"pluralArticleDiffers":null},{"noun":"Stück","article":"das","plural":null,"en":"Piece","note":null,"pluralArticleDiffers":null},{"noun":"T-Shirt","article":"das","plural":null,"en":"T-Shirt","note":null,"pluralArticleDiffers":null},{"noun":"Tablet","article":"das","plural":null,"en":"Tablet","note":null,"pluralArticleDiffers":null},{"noun":"Telefon","article":"das","plural":null,"en":"Telephone","note":null,"pluralArticleDiffers":null},{"noun":"Verkehrsschild","article":"das","plural":null,"en":"Traffic Sign","note":null,"pluralArticleDiffers":null},{"noun":"Waschbecken","article":"das","plural":null,"en":"The Sink/Wash Basin","note":null,"pluralArticleDiffers":null},{"noun":"Wasser","article":"das","plural":null,"en":"Water","note":null,"pluralArticleDiffers":null},{"noun":"Wetter","article":"das","plural":null,"en":"Weather","note":null,"pluralArticleDiffers":null},{"noun":"Wohneigentum","article":"das","plural":null,"en":"Home Ownership","note":null,"pluralArticleDiffers":null},{"noun":"Wörterbuch","article":"das","plural":null,"en":"Dictionary","note":null,"pluralArticleDiffers":null},{"noun":"Zimmer","article":"das","plural":null,"en":"Room (in a house or hotel)","note":null,"pluralArticleDiffers":null},{"noun":"Öl","article":"das","plural":null,"en":"Oil","note":null,"pluralArticleDiffers":null},{"noun":"Anzug","article":"der","plural":null,"en":"Suit","note":null,"pluralArticleDiffers":null},{"noun":"Apfel","article":"der","plural":null,"en":"Apple","note":null,"pluralArticleDiffers":null},{"noun":"Architekt","article":"der","plural":null,"en":"Architect","note":null,"pluralArticleDiffers":null},{"noun":"Arzt","article":"der","plural":null,"en":"Doctor","note":null,"pluralArticleDiffers":null},{"noun":"Assistent","article":"der","plural":null,"en":"Assistant","note":null,"pluralArticleDiffers":null},{"noun":"Autofahrer","article":"der","plural":null,"en":"Driver","note":null,"pluralArticleDiffers":null},{"noun":"Bahnhof","article":"der","plural":null,"en":"Train Station","note":null,"pluralArticleDiffers":null},{"noun":"Bauch","article":"der","plural":null,"en":"Belly","note":null,"pluralArticleDiffers":null},{"noun":"Bikini","article":"der","plural":null,"en":"Bikini","note":null,"pluralArticleDiffers":null},{"noun":"Bildschirm","article":"der","plural":null,"en":"Screen","note":null,"pluralArticleDiffers":null},{"noun":"Bruder","article":"der","plural":null,"en":"Brother","note":null,"pluralArticleDiffers":null},{"noun":"Bus","article":"der","plural":null,"en":"Bus","note":null,"pluralArticleDiffers":null},{"noun":"Check-in-Schalter","article":"der","plural":null,"en":"Check-in Counter","note":null,"pluralArticleDiffers":null},{"noun":"Computer","article":"der","plural":null,"en":"Computer","note":null,"pluralArticleDiffers":null},{"noun":"Drucker","article":"der","plural":null,"en":"Printer","note":null,"pluralArticleDiffers":null},{"noun":"Eigentümer","article":"der","plural":null,"en":"Owner","note":null,"pluralArticleDiffers":null},{"noun":"Espresso","article":"der","plural":null,"en":"Espresso","note":null,"pluralArticleDiffers":null},{"noun":"Esstisch","article":"der","plural":null,"en":"Dining Table","note":null,"pluralArticleDiffers":null},{"noun":"Fahrgast","article":"der","plural":null,"en":"Passenger (bus/train)","note":null,"pluralArticleDiffers":null},{"noun":"Fahrkartenautomat","article":"der","plural":null,"en":"Ticket Machine","note":null,"pluralArticleDiffers":null},{"noun":"Fahrkartenschalter","article":"der","plural":null,"en":"Ticket Counter","note":null,"pluralArticleDiffers":null},{"noun":"Fahrkartenverkäufer","article":"der","plural":null,"en":"Ticket Seller","note":null,"pluralArticleDiffers":null},{"noun":"Fahrplan","article":"der","plural":null,"en":"Timetable","note":null,"pluralArticleDiffers":null},{"noun":"Fernseher","article":"der","plural":null,"en":"TV","note":null,"pluralArticleDiffers":null},{"noun":"Finger","article":"der","plural":null,"en":"Finger","note":null,"pluralArticleDiffers":null},{"noun":"Flughafen","article":"der","plural":null,"en":"Airport","note":null,"pluralArticleDiffers":null},{"noun":"Flugplan","article":"der","plural":null,"en":"Flight Plan","note":null,"pluralArticleDiffers":null},{"noun":"Flugsteig","article":"der","plural":null,"en":"Departure Gate","note":null,"pluralArticleDiffers":null},{"noun":"Fotoapparat","article":"der","plural":null,"en":"Camera","note":null,"pluralArticleDiffers":null},{"noun":"Freund","article":"der","plural":null,"en":"Friend","note":null,"pluralArticleDiffers":null},{"noun":"Fuß","article":"der","plural":null,"en":"Foot","note":null,"pluralArticleDiffers":null},{"noun":"Fußball","article":"der","plural":null,"en":"Football","note":null,"pluralArticleDiffers":null},{"noun":"Führerschein","article":"der","plural":null,"en":"Driver's License","note":null,"pluralArticleDiffers":null},{"noun":"Geschirrspüler","article":"der","plural":null,"en":"Dishwasher","note":null,"pluralArticleDiffers":null},{"noun":"Großraumwagen","article":"der","plural":null,"en":"Open-plan railway carriage","note":null,"pluralArticleDiffers":null},{"noun":"Hafen","article":"der","plural":null,"en":"Harbor","note":null,"pluralArticleDiffers":null},{"noun":"Hals","article":"der","plural":null,"en":"Neck","note":null,"pluralArticleDiffers":null},{"noun":"Hut","article":"der","plural":null,"en":"Hat","note":"A brimmed hat.","pluralArticleDiffers":null},{"noun":"Hörsaal","article":"der","plural":null,"en":"Lecture Hall","note":null,"pluralArticleDiffers":null},{"noun":"Informatiker","article":"der","plural":null,"en":"IT Specialist","note":null,"pluralArticleDiffers":null},{"noun":"Informationsschalter","article":"der","plural":null,"en":"Information Desk","note":null,"pluralArticleDiffers":null},{"noun":"Ingenieur","article":"der","plural":null,"en":"Engineer","note":null,"pluralArticleDiffers":null},{"noun":"Joghurt","article":"der","plural":null,"en":"Yogurt","note":null,"pluralArticleDiffers":null},{"noun":"Kaffee","article":"der","plural":null,"en":"Coffee","note":null,"pluralArticleDiffers":null},{"noun":"Kalender","article":"der","plural":null,"en":"Calendar","note":null,"pluralArticleDiffers":null},{"noun":"Kellner","article":"der","plural":null,"en":"Waiter","note":null,"pluralArticleDiffers":null},{"noun":"Kleiderschrank","article":"der","plural":null,"en":"Clothing Closet","note":null,"pluralArticleDiffers":null},{"noun":"Koffer","article":"der","plural":null,"en":"Suitcase","note":null,"pluralArticleDiffers":null},{"noun":"Kopf","article":"der","plural":null,"en":"Head","note":null,"pluralArticleDiffers":null},{"noun":"Kuchen","article":"der","plural":null,"en":"Cake","note":null,"pluralArticleDiffers":null},{"noun":"Käse","article":"der","plural":null,"en":"Cheese","note":null,"pluralArticleDiffers":null},{"noun":"Körper","article":"der","plural":null,"en":"Body","note":null,"pluralArticleDiffers":null},{"noun":"Küchenschrank","article":"der","plural":null,"en":"Kitchen Cabinet","note":null,"pluralArticleDiffers":null},{"noun":"Kühlschrank","article":"der","plural":null,"en":"Refrigerator","note":null,"pluralArticleDiffers":null},{"noun":"Künstler","article":"der","plural":null,"en":"Artist","note":null,"pluralArticleDiffers":null},{"noun":"Lachs","article":"der","plural":null,"en":"Salmon","note":null,"pluralArticleDiffers":null},{"noun":"Laptop","article":"der","plural":null,"en":"Laptop","note":null,"pluralArticleDiffers":null},{"noun":"Lehrer","article":"der","plural":null,"en":"Teacher","note":null,"pluralArticleDiffers":null},{"noun":"Lesesaal","article":"der","plural":null,"en":"Reading Room","note":null,"pluralArticleDiffers":null},{"noun":"Lippenstift","article":"der","plural":null,"en":"Lipstick","note":null,"pluralArticleDiffers":null},{"noun":"Löffel","article":"der","plural":null,"en":"Spoon","note":null,"pluralArticleDiffers":null},{"noun":"Mann","article":"der","plural":null,"en":"Husband","note":null,"pluralArticleDiffers":null},{"noun":"Mantel","article":"der","plural":null,"en":"Coat","note":null,"pluralArticleDiffers":null},{"noun":"Mieter","article":"der","plural":null,"en":"Tenant","note":null,"pluralArticleDiffers":null},{"noun":"Monat","article":"der","plural":"Monate","en":"Month","note":"The plural (Monate) takes 'die' — that's the plural marker every German noun gets, not a sign of gender. The singular is der Monat.","pluralArticleDiffers":true},{"noun":"Mund","article":"der","plural":null,"en":"Mouth","note":null,"pluralArticleDiffers":null},{"noun":"Onkel","article":"der","plural":null,"en":"Uncle","note":null,"pluralArticleDiffers":null},{"noun":"Parkplatz","article":"der","plural":null,"en":"Parking Lot","note":null,"pluralArticleDiffers":null},{"noun":"Partner","article":"der","plural":null,"en":"Partner","note":null,"pluralArticleDiffers":null},{"noun":"Passagier","article":"der","plural":null,"en":"Passenger (plane/ship)","note":null,"pluralArticleDiffers":null},{"noun":"Pfeffer","article":"der","plural":null,"en":"Pepper","note":null,"pluralArticleDiffers":null},{"noun":"Pullover","article":"der","plural":null,"en":"Sweater","note":null,"pluralArticleDiffers":null},{"noun":"Quadratmeter","article":"der","plural":null,"en":"Square Meter","note":null,"pluralArticleDiffers":null},{"noun":"Quark","article":"der","plural":null,"en":"Quark (type of cheese)","note":null,"pluralArticleDiffers":null},{"noun":"Raum","article":"der","plural":null,"en":"Room / space (generic)","note":null,"pluralArticleDiffers":null},{"noun":"Regenschirm","article":"der","plural":null,"en":"Umbrella","note":null,"pluralArticleDiffers":null},{"noun":"Reis","article":"der","plural":null,"en":"Rice","note":null,"pluralArticleDiffers":null},{"noun":"Reisepass","article":"der","plural":null,"en":"Passport","note":null,"pluralArticleDiffers":null},{"noun":"Rock","article":"der","plural":null,"en":"Skirt","note":null,"pluralArticleDiffers":null},{"noun":"Rucksack","article":"der","plural":null,"en":"Backpack","note":null,"pluralArticleDiffers":null},{"noun":"Rücken","article":"der","plural":null,"en":"Back","note":null,"pluralArticleDiffers":null},{"noun":"Saft","article":"der","plural":null,"en":"Juice","note":null,"pluralArticleDiffers":null},{"noun":"Salat","article":"der","plural":null,"en":"Salad","note":null,"pluralArticleDiffers":null},{"noun":"Schal","article":"der","plural":null,"en":"Scarf","note":null,"pluralArticleDiffers":null},{"noun":"Schinken","article":"der","plural":null,"en":"Ham","note":null,"pluralArticleDiffers":null},{"noun":"Schlüssel","article":"der","plural":null,"en":"Key","note":null,"pluralArticleDiffers":null},{"noun":"Schmerz","article":"der","plural":"Schmerzen","en":"Pain","note":"The plural (Schmerzen) takes 'die' — that's the plural marker every German noun gets, not a sign of gender. The singular is der Schmerz.","pluralArticleDiffers":true},{"noun":"Schrank","article":"der","plural":null,"en":"Closet","note":null,"pluralArticleDiffers":null},{"noun":"Schreibtisch","article":"der","plural":null,"en":"Desk","note":null,"pluralArticleDiffers":null},{"noun":"Schuh","article":"der","plural":"Schuhe","en":"Shoe","note":"The plural (Schuhe) takes 'die' — that's the plural marker every German noun gets, not a sign of gender. The singular is der Schuh.","pluralArticleDiffers":true},{"noun":"Schuhschrank","article":"der","plural":null,"en":"Shoe Closet","note":null,"pluralArticleDiffers":null},{"noun":"Seminarraum","article":"der","plural":null,"en":"Seminar Room","note":null,"pluralArticleDiffers":null},{"noun":"Sessel","article":"der","plural":null,"en":"Armchair","note":null,"pluralArticleDiffers":null},{"noun":"Singlehaushalt","article":"der","plural":null,"en":"Single Household","note":null,"pluralArticleDiffers":null},{"noun":"Sitzplatz","article":"der","plural":null,"en":"Seat","note":null,"pluralArticleDiffers":null},{"noun":"Sohn","article":"der","plural":null,"en":"Son","note":null,"pluralArticleDiffers":null},{"noun":"Spiegel","article":"der","plural":null,"en":"Mirror","note":null,"pluralArticleDiffers":null},{"noun":"Sportschuh","article":"der","plural":"Sportschuhe","en":"Sports shoe","note":"The plural (Sportschuhe) takes 'die' — that's the plural marker every German noun gets, not a sign of gender. The singular is der Sportschuh.","pluralArticleDiffers":true},{"noun":"Stift","article":"der","plural":null,"en":"Pen","note":null,"pluralArticleDiffers":null},{"noun":"Student","article":"der","plural":null,"en":"Student","note":null,"pluralArticleDiffers":null},{"noun":"Stuhl","article":"der","plural":null,"en":"Chair","note":null,"pluralArticleDiffers":null},{"noun":"Supermarkt","article":"der","plural":null,"en":"Supermarket","note":null,"pluralArticleDiffers":null},{"noun":"Tag","article":"der","plural":null,"en":"Day","note":null,"pluralArticleDiffers":null},{"noun":"Tee","article":"der","plural":null,"en":"Tea","note":null,"pluralArticleDiffers":null},{"noun":"Teller","article":"der","plural":null,"en":"Plate","note":null,"pluralArticleDiffers":null},{"noun":"Teppich","article":"der","plural":null,"en":"Carpet","note":null,"pluralArticleDiffers":null},{"noun":"Termin","article":"der","plural":null,"en":"Appointment","note":null,"pluralArticleDiffers":null},{"noun":"Tisch","article":"der","plural":null,"en":"Table","note":null,"pluralArticleDiffers":null},{"noun":"Topf","article":"der","plural":null,"en":"Pot","note":null,"pluralArticleDiffers":null},{"noun":"Vater","article":"der","plural":null,"en":"Father","note":null,"pluralArticleDiffers":null},{"noun":"Wein","article":"der","plural":null,"en":"Wine","note":null,"pluralArticleDiffers":null},{"noun":"Zahn","article":"der","plural":null,"en":"Tooth","note":null,"pluralArticleDiffers":null},{"noun":"Zug","article":"der","plural":null,"en":"Train","note":"Refers to a specific train.","pluralArticleDiffers":null},{"noun":"linke Arm","article":"der","plural":null,"en":"Left Arm","note":null,"pluralArticleDiffers":null},{"noun":"rechte Arm","article":"der","plural":null,"en":"Right Arm","note":null,"pluralArticleDiffers":null},{"noun":"Abfahrt","article":"die","plural":null,"en":"Departure","note":null,"pluralArticleDiffers":null},{"noun":"Ampel","article":"die","plural":null,"en":"Traffic Light","note":null,"pluralArticleDiffers":null},{"noun":"Ananas","article":"die","plural":null,"en":"Pineapple","note":null,"pluralArticleDiffers":null},{"noun":"Ankunftshalle","article":"die","plural":null,"en":"Arrival Hall","note":null,"pluralArticleDiffers":null},{"noun":"Apotheke","article":"die","plural":null,"en":"Pharmacy","note":null,"pluralArticleDiffers":null},{"noun":"Atmosphäre","article":"die","plural":null,"en":"Atmosphere","note":null,"pluralArticleDiffers":null},{"noun":"Autobahn","article":"die","plural":null,"en":"Highway","note":null,"pluralArticleDiffers":null},{"noun":"Badehose","article":"die","plural":null,"en":"Swimsuit","note":null,"pluralArticleDiffers":null},{"noun":"Badewanne","article":"die","plural":null,"en":"Bathtub","note":null,"pluralArticleDiffers":null},{"noun":"Bahn","article":"die","plural":null,"en":"Railway / train (system)","note":null,"pluralArticleDiffers":null},{"noun":"Banane","article":"die","plural":null,"en":"Banana","note":null,"pluralArticleDiffers":null},{"noun":"Bank","article":"die","plural":null,"en":"Bank","note":null,"pluralArticleDiffers":null},{"noun":"Birne","article":"die","plural":null,"en":"Pear","note":null,"pluralArticleDiffers":null},{"noun":"Brille","article":"die","plural":null,"en":"Glasses","note":null,"pluralArticleDiffers":null},{"noun":"Butter","article":"die","plural":null,"en":"Butter","note":null,"pluralArticleDiffers":null},{"noun":"Cafeteria","article":"die","plural":null,"en":"Cafeteria / snack bar","note":null,"pluralArticleDiffers":null},{"noun":"Cola","article":"die","plural":null,"en":"Cola","note":null,"pluralArticleDiffers":null},{"noun":"Couch","article":"die","plural":null,"en":"Couch","note":null,"pluralArticleDiffers":null},{"noun":"Currywurst","article":"die","plural":null,"en":"Currywurst","note":null,"pluralArticleDiffers":null},{"noun":"Eigentumswohnung","article":"die","plural":null,"en":"Condominium","note":null,"pluralArticleDiffers":null},{"noun":"Eltern","article":"die","plural":null,"en":"Parents","note":"Plural-only noun — there is no singular \"das Elter\" in everyday use.","pluralArticleDiffers":null},{"noun":"Erdbeere","article":"die","plural":null,"en":"Strawberry","note":null,"pluralArticleDiffers":null},{"noun":"Flasche","article":"die","plural":null,"en":"Bottle","note":null,"pluralArticleDiffers":null},{"noun":"Frau","article":"die","plural":null,"en":"Woman","note":null,"pluralArticleDiffers":null},{"noun":"Gabel","article":"die","plural":null,"en":"Fork","note":null,"pluralArticleDiffers":null},{"noun":"Garderobe","article":"die","plural":null,"en":"Wardrobe","note":null,"pluralArticleDiffers":null},{"noun":"Gurke","article":"die","plural":null,"en":"Cucumber","note":null,"pluralArticleDiffers":null},{"noun":"Hand","article":"die","plural":"Hände","en":"Hand","note":null,"pluralArticleDiffers":false},{"noun":"Hose","article":"die","plural":null,"en":"Pants","note":null,"pluralArticleDiffers":null},{"noun":"Jacke","article":"die","plural":null,"en":"Jacket","note":null,"pluralArticleDiffers":null},{"noun":"Jahreszeit","article":"die","plural":"Jahreszeiten","en":"Season","note":null,"pluralArticleDiffers":false},{"noun":"Kaffeemaschine","article":"die","plural":null,"en":"Coffee Machine","note":null,"pluralArticleDiffers":null},{"noun":"Karte","article":"die","plural":null,"en":"Card / map","note":null,"pluralArticleDiffers":null},{"noun":"Kartoffel","article":"die","plural":null,"en":"Potato","note":null,"pluralArticleDiffers":null},{"noun":"Kreditkarte","article":"die","plural":null,"en":"Credit Card","note":null,"pluralArticleDiffers":null},{"noun":"Lampe","article":"die","plural":null,"en":"Lamp","note":null,"pluralArticleDiffers":null},{"noun":"Leberwurst","article":"die","plural":null,"en":"Liver Sausage","note":null,"pluralArticleDiffers":null},{"noun":"Limonade","article":"die","plural":null,"en":"Lemonade","note":null,"pluralArticleDiffers":null},{"noun":"Maschine","article":"die","plural":null,"en":"Machine","note":null,"pluralArticleDiffers":null},{"noun":"Mensa","article":"die","plural":null,"en":"Cafeteria (university canteen)","note":null,"pluralArticleDiffers":null},{"noun":"Mietwohnung","article":"die","plural":null,"en":"Rental Apartment","note":null,"pluralArticleDiffers":null},{"noun":"Milch","article":"die","plural":null,"en":"Milk","note":null,"pluralArticleDiffers":null},{"noun":"Minute","article":"die","plural":null,"en":"Minute","note":null,"pluralArticleDiffers":null},{"noun":"Mutter","article":"die","plural":null,"en":"Mother","note":null,"pluralArticleDiffers":null},{"noun":"Möglichkeit","article":"die","plural":"Möglichkeiten","en":"Possibility","note":null,"pluralArticleDiffers":false},{"noun":"Mütze","article":"die","plural":null,"en":"Cap / beanie","note":"A knit or soft cap, as opposed to der Hut (brimmed hat).","pluralArticleDiffers":null},{"noun":"Nacht","article":"die","plural":null,"en":"Night","note":null,"pluralArticleDiffers":null},{"noun":"Nase","article":"die","plural":null,"en":"Nose","note":null,"pluralArticleDiffers":null},{"noun":"Nudel","article":"die","plural":"Nudeln","en":"Noodle","note":null,"pluralArticleDiffers":false},{"noun":"Nummer","article":"die","plural":null,"en":"Number","note":null,"pluralArticleDiffers":null},{"noun":"Paprika","article":"die","plural":null,"en":"Capsicum","note":null,"pluralArticleDiffers":null},{"noun":"Passkontrolle","article":"die","plural":null,"en":"Passport Control","note":null,"pluralArticleDiffers":null},{"noun":"Pfanne","article":"die","plural":null,"en":"Pan","note":null,"pluralArticleDiffers":null},{"noun":"Regenjacke","article":"die","plural":null,"en":"Raincoat","note":null,"pluralArticleDiffers":null},{"noun":"S-Bahn","article":"die","plural":null,"en":"Suburban train (S-Bahn)","note":null,"pluralArticleDiffers":null},{"noun":"Sahne","article":"die","plural":null,"en":"Cream","note":null,"pluralArticleDiffers":null},{"noun":"Schokolade","article":"die","plural":null,"en":"Chocolate","note":null,"pluralArticleDiffers":null},{"noun":"Schwester","article":"die","plural":null,"en":"Sister","note":null,"pluralArticleDiffers":null},{"noun":"Seite","article":"die","plural":null,"en":"Page","note":null,"pluralArticleDiffers":null},{"noun":"Sekunde","article":"die","plural":null,"en":"Second","note":null,"pluralArticleDiffers":null},{"noun":"Socke","article":"die","plural":"Socken","en":"Sock","note":null,"pluralArticleDiffers":false},{"noun":"Sonnenbrille","article":"die","plural":null,"en":"Sunglasses","note":null,"pluralArticleDiffers":null},{"noun":"Sportskleidung","article":"die","plural":null,"en":"Sportswear","note":null,"pluralArticleDiffers":null},{"noun":"Straße","article":"die","plural":null,"en":"Street","note":null,"pluralArticleDiffers":null},{"noun":"Straßenbahn","article":"die","plural":null,"en":"Tram","note":null,"pluralArticleDiffers":null},{"noun":"Stunde","article":"die","plural":null,"en":"Hour","note":null,"pluralArticleDiffers":null},{"noun":"Suppe","article":"die","plural":null,"en":"Soup","note":null,"pluralArticleDiffers":null},{"noun":"Tablette","article":"die","plural":null,"en":"Pill / tablet (medicine)","note":"Not to be confused with das Tablet (the electronic device).","pluralArticleDiffers":null},{"noun":"Tankstelle","article":"die","plural":null,"en":"Gas Station","note":null,"pluralArticleDiffers":null},{"noun":"Tante","article":"die","plural":null,"en":"Aunt","note":null,"pluralArticleDiffers":null},{"noun":"Tasche","article":"die","plural":null,"en":"Bag","note":null,"pluralArticleDiffers":null},{"noun":"Tasse","article":"die","plural":null,"en":"Cup","note":null,"pluralArticleDiffers":null},{"noun":"Tochter","article":"die","plural":null,"en":"Daughter","note":null,"pluralArticleDiffers":null},{"noun":"Toilette","article":"die","plural":null,"en":"Toilet","note":null,"pluralArticleDiffers":null},{"noun":"Tomate","article":"die","plural":null,"en":"Tomato","note":null,"pluralArticleDiffers":null},{"noun":"Torte","article":"die","plural":null,"en":"Cake","note":null,"pluralArticleDiffers":null},{"noun":"Touristeninformation","article":"die","plural":null,"en":"Tourist Information","note":null,"pluralArticleDiffers":null},{"noun":"Tür","article":"die","plural":null,"en":"Door","note":null,"pluralArticleDiffers":null},{"noun":"U-Bahn","article":"die","plural":null,"en":"Subway / underground (U-Bahn)","note":null,"pluralArticleDiffers":null},{"noun":"Uhr","article":"die","plural":null,"en":"Clock","note":null,"pluralArticleDiffers":null},{"noun":"Unterwäsche","article":"die","plural":null,"en":"Underwear","note":null,"pluralArticleDiffers":null},{"noun":"Vase","article":"die","plural":null,"en":"Vase","note":null,"pluralArticleDiffers":null},{"noun":"Verbindung","article":"die","plural":null,"en":"Connection","note":null,"pluralArticleDiffers":null},{"noun":"Waschmaschine","article":"die","plural":null,"en":"Washing Machine","note":null,"pluralArticleDiffers":null},{"noun":"Wohngemeinschaft","article":"die","plural":null,"en":"Shared Apartment","note":null,"pluralArticleDiffers":null},{"noun":"Zehe","article":"die","plural":"Zehen","en":"Toe","note":null,"pluralArticleDiffers":false},{"noun":"Zeitschrift","article":"die","plural":null,"en":"Magazine","note":null,"pluralArticleDiffers":null},{"noun":"Zeitung","article":"die","plural":null,"en":"Newspaper","note":null,"pluralArticleDiffers":null},{"noun":"Zwiebel","article":"die","plural":null,"en":"Onion","note":null,"pluralArticleDiffers":null}];
+
+/* ---------------- storage / progress ---------------- */
+const STORE_KEY = 'wortschatz-progress-v1';
+let progress = { perNoun:{}, streak:{count:0,lastDate:null}, totalReviews:0, sortBest:0 };
+
+function keyOf(w){ return w.noun.toLowerCase()+'|'+w.article; }
+function getEntry(w){
+  const k = keyOf(w);
+  if(!progress.perNoun[k]) progress.perNoun[k] = {box:0, seen:0, correct:0};
+  return progress.perNoun[k];
+}
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+
+async function loadProgress(){
+  try{
+    if(window.storage){
+      const res = await window.storage.get(STORE_KEY, false);
+      if(res && res.value){
+        progress = Object.assign(progress, JSON.parse(res.value));
+      }
+    } else {
+      const raw = localStorage.getItem(STORE_KEY);
+      if(raw) progress = Object.assign(progress, JSON.parse(raw));
+    }
+  }catch(e){ /* first run, no data yet */ }
+  bumpStreakIfNeeded();
+  renderHeaderStats();
+}
+let saveTimer=null;
+function saveProgress(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async ()=>{
+    const json = JSON.stringify(progress);
+    try{
+      if(window.storage){ await window.storage.set(STORE_KEY, json, false); }
+      else { localStorage.setItem(STORE_KEY, json); }
+    }catch(e){ /* storage unavailable in this context — progress stays in memory for the session */ }
+  }, 400);
+}
+function bumpStreakIfNeeded(){
+  const t = todayStr();
+  if(progress.streak.lastDate === t) return;
+  const y = new Date(Date.now()-86400000).toISOString().slice(0,10);
+  if(progress.streak.lastDate === y){ progress.streak.count += 1; }
+  else if(progress.streak.lastDate){ progress.streak.count = 1; }
+  else { progress.streak.count = 1; }
+  progress.streak.lastDate = t;
+  saveProgress();
+}
+function renderHeaderStats(){
+  document.getElementById('streakNum').textContent = progress.streak.count;
+  const mastered = WORDS.filter(w => (progress.perNoun[keyOf(w)]||{box:0}).box >= 3).length;
+  document.getElementById('masteredNum').textContent = mastered;
+  const pct = Math.round(100*mastered/WORDS.length);
+  document.getElementById('progFill').style.width = pct+'%';
+  document.getElementById('progText').textContent = mastered+' / '+WORDS.length+' mastered';
+  document.getElementById('progPct').textContent = pct+'%';
+}
+
+/* ---------------- filters ---------------- */
+let activeFilter = 'all';
+document.getElementById('filters').addEventListener('click', e=>{
+  const chip = e.target.closest('.chip');
+  if(!chip) return;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  chip.classList.add('active');
+  activeFilter = chip.dataset.g;
+  refreshCurrentMode();
+});
+function filteredWords(){
+  return WORDS.filter(w=>{
+    if(activeFilter==='all') return true;
+    if(activeFilter==='due') return getEntry(w).box < 3;
+    return w.article === activeFilter;
+  });
+}
+function weightedPick(pool){
+  // words in lower boxes appear more often
+  const weighted = [];
+  pool.forEach(w=>{
+    const box = getEntry(w).box;
+    const weight = box===0?4 : box===1?3 : box===2?2 : 1;
+    for(let i=0;i<weight;i++) weighted.push(w);
+  });
+  if(weighted.length===0) return null;
+  return weighted[Math.floor(Math.random()*weighted.length)];
+}
+
+/* ---------------- mode switching ---------------- */
+document.querySelectorAll('.gleis-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.gleis-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const mode = btn.dataset.mode;
+    document.querySelectorAll('.mode-view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('view-'+mode).classList.add('active');
+    document.getElementById('filters').style.display = mode==='sort' ? 'none' : 'flex';
+    refreshCurrentMode(mode);
+  });
+});
+function refreshCurrentMode(mode){
+  mode = mode || document.querySelector('.gleis-btn.active').dataset.mode;
+  if(mode==='cards') nextCard();
+  if(mode==='quiz') nextQuiz();
+}
+
+/* ================= FLASHCARDS ================= */
+let curCard = null;
+let cardsSeenSession = 0;
+function nextCard(){
+  const pool = filteredWords();
+  curCard = weightedPick(pool);
+  cardsSeenSession++;
+  document.getElementById('cardsSessCount').textContent = cardsSeenSession+' / '+pool.length;
+  document.getElementById('cardsSessFill').style.width = Math.min(100,(cardsSeenSession%pool.length||pool.length)/pool.length*100)+'%';
+
+  const flap = document.getElementById('cardArticleFlap');
+  flap.className = 'article-flap'; flap.textContent = '···';
+  document.getElementById('cardTranslation').classList.remove('show');
+  document.getElementById('cardTranslation').textContent='';
+  const pn = document.getElementById('cardPluralNote');
+  pn.classList.remove('show'); pn.textContent='';
+  document.getElementById('cardHint').style.display='block';
+  document.getElementById('revealBtn').style.display='block';
+  document.getElementById('againBtn').disabled = true;
+  document.getElementById('knowBtn').disabled = true;
+
+  if(!curCard){
+    document.getElementById('cardNoun').textContent = 'All done 🎉';
+    document.getElementById('cardGenderTag').textContent = 'NO WORDS LEFT';
+    document.getElementById('revealBtn').style.display='none';
+    document.getElementById('cardHint').style.display='none';
+    return;
+  }
+  document.getElementById('cardNoun').textContent = curCard.noun;
+  document.getElementById('cardGenderTag').textContent = 'NOUN';
+}
+function flapCycle(el, finalText, finalClass, duration){
+  const seq = ['der','die','das'];
+  let i=0;
+  const iv = setInterval(()=>{
+    el.textContent = seq[i%3].toUpperCase();
+    i++;
+  }, 55);
+  setTimeout(()=>{
+    clearInterval(iv);
+    el.textContent = finalText;
+    el.className = 'article-flap '+finalClass;
+  }, duration);
+}
+document.getElementById('revealBtn').addEventListener('click', ()=>{
+  if(!curCard) return;
+  const flap = document.getElementById('cardArticleFlap');
+  flapCycle(flap, curCard.article.toUpperCase(), curCard.article, 420);
+  setTimeout(()=>{
+    document.getElementById('cardTranslation').textContent = curCard.en;
+    document.getElementById('cardTranslation').classList.add('show');
+    if(curCard.plural){
+      const pn = document.getElementById('cardPluralNote');
+      if(curCard.pluralArticleDiffers){
+        pn.innerHTML = 'Plural: <b>die '+curCard.plural+'</b> — that\'s just the plural marker, not a gender change. Singular stays <b>'+curCard.article+' '+curCard.noun+'</b>.';
+      } else {
+        pn.innerHTML = 'Plural: <b>die '+curCard.plural+'</b>';
+      }
+      pn.classList.add('show');
+    }
+    document.getElementById('againBtn').disabled = false;
+    document.getElementById('knowBtn').disabled = false;
+  }, 440);
+  document.getElementById('cardHint').style.display='none';
+  document.getElementById('revealBtn').style.display='none';
+});
+document.getElementById('againBtn').addEventListener('click', ()=>{
+  const e = getEntry(curCard); e.seen++; e.box = 0;
+  progress.totalReviews++; saveProgress(); renderHeaderStats(); nextCard();
+});
+document.getElementById('knowBtn').addEventListener('click', ()=>{
+  const e = getEntry(curCard); e.seen++; e.correct++; e.box = Math.min(3, e.box+1);
+  progress.totalReviews++; saveProgress(); renderHeaderStats(); nextCard();
+});
+
+/* ================= QUIZ ================= */
+let curQuiz = null;
+let quizCorrectCount=0, quizStreakCount=0, quizTotalCount=0;
+function nextQuiz(){
+  const pool = filteredWords();
+  curQuiz = weightedPick(pool);
+  document.querySelectorAll('#view-quiz .qbtn').forEach(b=>{ b.disabled=false; b.className='qbtn '+b.dataset.g; });
+  document.getElementById('quizFeedback').textContent='';
+  document.getElementById('quizNextBtn').style.display='none';
+  document.getElementById('quizEn').textContent='';
+  if(!curQuiz){
+    document.getElementById('quizNoun').textContent='All done 🎉';
+    document.querySelectorAll('#view-quiz .qbtn').forEach(b=>b.disabled=true);
+    return;
+  }
+  document.getElementById('quizNoun').textContent = curQuiz.noun;
+}
+document.querySelectorAll('#view-quiz .qbtn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    if(!curQuiz) return;
+    const chosen = btn.dataset.g;
+    const correct = chosen === curQuiz.article;
+    document.querySelectorAll('#view-quiz .qbtn').forEach(b=>{
+      b.disabled=true;
+      if(b.dataset.g === curQuiz.article) b.classList.add('correct');
+      else if(b===btn) b.classList.add('wrong');
+    });
+    const e = getEntry(curQuiz); e.seen++;
+    if(correct){ e.correct++; e.box=Math.min(3,e.box+1); quizCorrectCount++; quizStreakCount++; }
+    else { e.box=0; quizStreakCount=0; }
+    quizTotalCount++;
+    progress.totalReviews++;
+    document.getElementById('quizCorrect').textContent = quizCorrectCount;
+    document.getElementById('quizStreak').textContent = quizStreakCount;
+    document.getElementById('quizTotal').textContent = quizTotalCount;
+    document.getElementById('quizFeedback').textContent = (correct? '✓ Correct — ' : '✗ Correct answer is "'+curQuiz.article+'" — ') + curQuiz.en;
+    if(curQuiz.plural && curQuiz.pluralArticleDiffers){
+      document.getElementById('quizFeedback').textContent += '  (plural: die '+curQuiz.plural+' — plural marker only, not a gender change)';
+    }
+    document.getElementById('quizEn').textContent = '';
+    document.getElementById('quizNextBtn').style.display='block';
+    saveProgress(); renderHeaderStats();
+  });
+});
+document.getElementById('quizNextBtn').addEventListener('click', nextQuiz);
+
+/* ================= SORT GAME ================= */
+let sortActive=false, sortScore=0, sortWordCur=null, sortTimeLeft=45, sortTimerId=null;
+document.getElementById('sortStartBtn').addEventListener('click', startSort);
+document.getElementById('sortAgainBtn').addEventListener('click', startSort);
+function startSort(){
+  document.getElementById('sortPre').style.display='none';
+  document.getElementById('sortResult').style.display='none';
+  document.getElementById('sortGame').style.display='flex';
+  sortScore=0; sortTimeLeft=45; sortActive=true;
+  document.getElementById('sortScore').textContent='0';
+  document.getElementById('sortTimer').textContent='45';
+  nextSortWord();
+  sortTimerId = setInterval(()=>{
+    sortTimeLeft--;
+    document.getElementById('sortTimer').textContent = sortTimeLeft;
+    if(sortTimeLeft<=0) endSort();
+  },1000);
+}
+function nextSortWord(){
+  sortWordCur = WORDS[Math.floor(Math.random()*WORDS.length)];
+  document.getElementById('sortWord').textContent = sortWordCur.noun;
+  document.querySelectorAll('#sortGame .qbtn').forEach(b=>{ b.disabled=false; b.className='qbtn '+b.dataset.g; });
+}
+document.querySelectorAll('#sortGame .qbtn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    if(!sortActive || !sortWordCur) return;
+    const correct = btn.dataset.g === sortWordCur.article;
+    btn.classList.add(correct?'correct':'wrong');
+    document.querySelectorAll('#sortGame .qbtn').forEach(b=>b.disabled=true);
+    const e = getEntry(sortWordCur); e.seen++;
+    if(correct){ sortScore++; e.correct++; e.box=Math.min(3,e.box+1); }
+    else { e.box=Math.max(0,e.box-1); }
+    document.getElementById('sortScore').textContent = sortScore;
+    progress.totalReviews++;
+    setTimeout(()=>{ if(sortActive) nextSortWord(); }, 180);
+  });
+});
+function endSort(){
+  sortActive=false;
+  clearInterval(sortTimerId);
+  document.getElementById('sortGame').style.display='none';
+  document.getElementById('sortResult').style.display='flex';
+  document.getElementById('sortFinalScore').textContent = sortScore;
+  const isBest = sortScore > progress.sortBest;
+  if(isBest) progress.sortBest = sortScore;
+  document.getElementById('sortFinalSub').textContent = isBest ? 'sorted correctly — new best! 🏆' : 'sorted correctly · Best: '+progress.sortBest;
+  document.getElementById('sortBestPre').textContent = progress.sortBest;
+  saveProgress(); renderHeaderStats();
+}
+
+/* ---------------- init ---------------- */
+(async function init(){
+  await loadProgress();
+  document.getElementById('sortBestPre').textContent = progress.sortBest || 0;
+  nextCard();
+})();
+</script>
+</body>
+</html>
