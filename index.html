@@ -42,6 +42,11 @@
           <div class="glabel">Sortierbahnhof</div>
           <div class="gsub">Sorting Game</div>
         </button>
+        <button role="tab" aria-selected="false" aria-label="Switch to progress view" aria-controls="view-progress" id="tab-progress" class="gleis-btn" data-mode="progress">
+          <div class="gnum mono">GLEIS 4</div>
+          <div class="glabel">Fortschritt</div>
+          <div class="gsub">Progress</div>
+        </button>
       </nav>
     </header>
 
@@ -59,6 +64,7 @@
 
       <!-- MODE 1: FLASHCARDS -->
       <section role="tabpanel" aria-labelledby="tab-cards" class="mode-view active" id="view-cards">
+        <h2 class="visually-hidden">Flashcards</h2>
         <div class="session-bar">
           <div class="session-track"><div class="session-fill" id="cardsSessFill"></div></div>
           <div class="session-count mono" role="status" id="cardsSessCount">0 / 0</div>
@@ -82,6 +88,7 @@
 
       <!-- MODE 2: QUIZ -->
       <section role="tabpanel" aria-labelledby="tab-quiz" class="mode-view" id="view-quiz">
+        <h2 class="visually-hidden">Article Quiz</h2>
         <div class="quiz-stats"><span>Correct: <b id="quizCorrect">0</b></span><span>Streak: <b id="quizStreak">0</b></span><span>Total: <b id="quizTotal">0</b></span></div>
         <div class="quiz-word" id="quizNoun">—</div>
         <div class="quiz-en" id="quizEn"></div>
@@ -96,6 +103,7 @@
 
       <!-- MODE 3: SORT GAME -->
       <section role="tabpanel" aria-labelledby="tab-sort" class="mode-view" id="view-sort">
+        <h2 class="visually-hidden">Sorting Game</h2>
         <div class="sort-pre" id="sortPre">
           <h3>Sortierbahnhof <span style="color:var(--ink-faint); font-weight:500; font-size:13px;">— Sorting Station</span></h3>
           <p>45 seconds. Words come in — send each one to the right platform: DER, DIE, or DAS. Best score: <b id="sortBestPre" class="mono">0</b></p>
@@ -121,6 +129,39 @@
         </div>
       </section>
 
+      <!-- MODE 4: PROGRESS -->
+      <section role="tabpanel" aria-labelledby="tab-progress" class="mode-view" id="view-progress">
+        <h2 class="visually-hidden">Progress</h2>
+
+        <div class="progress-block">
+          <h3 class="progress-block-title">Mastery by article</h3>
+          <div class="mastery-row">
+            <div class="mastery-card der">
+              <div class="mastery-label mono">DER</div>
+              <div class="mastery-frac mono" id="masteryDer">0 / 0</div>
+            </div>
+            <div class="mastery-card die">
+              <div class="mastery-label mono">DIE</div>
+              <div class="mastery-frac mono" id="masteryDie">0 / 0</div>
+            </div>
+            <div class="mastery-card das">
+              <div class="mastery-label mono">DAS</div>
+              <div class="mastery-frac mono" id="masteryDas">0 / 0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="progress-block">
+          <h3 class="progress-block-title">Streak calendar <span class="progress-block-sub">— last 7 days</span></h3>
+          <div class="streak-cal" id="streakCal"></div>
+        </div>
+
+        <div class="progress-block">
+          <h3 class="progress-block-title">"Anschluss verpasst" <span class="progress-block-sub">— missed connections</span></h3>
+          <ul class="mistakes-list" id="mistakesList"></ul>
+        </div>
+      </section>
+
     </section>
 
     <p class="foot-note">259 nouns · A1/A2 · your progress is saved automatically</p>
@@ -132,6 +173,7 @@
   <script src="js/cards.js"></script>
   <script src="js/quiz.js"></script>
   <script src="js/sort.js"></script>
+  <script src="js/progress.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
