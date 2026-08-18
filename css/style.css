@@ -167,22 +167,22 @@ body {
 .gleise {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: 6px;
   margin-top: 14px;
 }
 
 .gleis-btn {
-  flex: 1;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 10px;
-  padding: 10px 6px 9px;
+  padding: 8px 4px 7px;
   text-align: center;
   cursor: pointer;
   color: var(--ink-soft);
   transition: border-color .15s, color .15s, background .15s, transform .1s;
   font-family: inherit;
   font-size: inherit;
+  min-width: 0; /* ✅ Prevents overflow */
 }
 
 .gleis-btn:active {
@@ -191,19 +191,19 @@ body {
 
 .gleis-btn .gnum {
   font-family: 'Space Mono', monospace;
-  font-size: 9.5px;
+  font-size: 8.5px; /* ✅ Smaller */
   color: var(--ink-faint);
   letter-spacing: .14em;
 }
 
 .gleis-btn .glabel {
-  font-size: 12.5px;
+  font-size: 11px; /* ✅ Smaller */
   font-weight: 600;
   margin-top: 2px;
 }
 
 .gleis-btn .gsub {
-  font-size: 9.5px;
+  font-size: 8px; /* ✅ Smaller */
   color: var(--ink-faint);
   margin-top: 1px;
 }
@@ -897,4 +897,104 @@ body {
   font-size: 13px;
   text-align: center;
   padding: 8px 0;
+}
+
+/* ===== MOBILE FIXES ===== */
+
+/* Small screens (under 480px) */
+@media (max-width: 480px) {
+  .gleise {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+  
+  .gleis-btn {
+    padding: 6px 2px 5px;
+    border-radius: 8px;
+  }
+  
+  .gleis-btn .gnum {
+    font-size: 7px;
+  }
+  
+  .gleis-btn .glabel {
+    font-size: 9px;
+  }
+  
+  .gleis-btn .gsub {
+    font-size: 6.5px;
+    display: none; /* ✅ Hide "Flashcards/Quiz/etc" on tiny screens */
+  }
+  
+  .head-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  
+  .stat-cluster {
+    justify-content: flex-start;
+  }
+  
+  .brand-title {
+    font-size: 18px;
+  }
+  
+  .stat-flap {
+    min-width: 44px;
+    padding: 4px 8px;
+  }
+  
+  .stat-flap .num {
+    font-size: 14px;
+  }
+  
+  .stat-flap .lbl {
+    font-size: 7px;
+  }
+}
+
+/* Tiny screens (under 380px) */
+@media (max-width: 380px) {
+  .gleise {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3px;
+  }
+  
+  .gleis-btn {
+    padding: 4px 2px 4px;
+    border-radius: 6px;
+  }
+  
+  .gleis-btn .gnum {
+    font-size: 6px;
+  }
+  
+  .gleis-btn .glabel {
+    font-size: 8px;
+  }
+  
+  .gleis-btn .gsub {
+    display: none;
+  }
+  
+  .brand-title {
+    font-size: 16px;
+  }
+  
+  .chip {
+    font-size: 9px;
+    padding: 4px 8px;
+    min-height: 26px;
+  }
+  
+  .noun-word {
+    font-size: 27px;
+  }
+  .quiz-word {
+    font-size: 25px;
+  }
+  .sort-word {
+    font-size: 25px;
+  }
 }
