@@ -4,6 +4,8 @@
 > **Destination:** A1/A2 German Article Mastery (*der*, *die*, *das*)
 > **Engine:** 100% Vanilla HTML / CSS / JS — Zero Dependencies, Zero Build Step!
 
+* 🕹️ **[Play the Live Demo](https://ayesha-at.github.io/Wortschatz-Bahnhof/)**
+
 ---
 
 ### 🛈 Station Overview & Live Board
