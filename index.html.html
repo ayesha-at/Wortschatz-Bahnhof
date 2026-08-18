@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wortschatz-Bahnhof</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- HEADER BOARD -->
+    <header class="board-head">
+      <div class="head-row">
+        <div>
+          <p class="brand-eyebrow">Now&nbsp;boarding · A1–A2</p>
+          <h1 class="brand-title">WORTSCHATZ‑BAHNHOF</h1>
+          <p class="brand-sub">Daily practice for der / die / das</p>
+        </div>
+        <div class="stat-cluster">
+          <div class="stat-flap streak"><div class="num mono" id="streakNum">0</div><div class="lbl">Streak</div></div>
+          <div class="stat-flap"><div class="num mono" id="masteredNum">0</div><div class="lbl">Mastered</div></div>
+        </div>
+      </div>
+      <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+      <div class="prog-label"><span id="progText">0 / 259 mastered</span><span id="progPct">0%</span></div>
+
+      <!-- GLEISE TABS -->
+      <nav role="tablist" aria-label="Practice modes" class="gleise">
+        <button role="tab" aria-selected="true" aria-label="Switch to flashcards mode" aria-controls="view-cards" id="tab-cards" class="gleis-btn active" data-mode="cards">
+          <div class="gnum mono">GLEIS 1</div>
+          <div class="glabel">Karteikarten</div>
+          <div class="gsub">Flashcards</div>
+        </button>
+        <button role="tab" aria-selected="false" aria-label="Switch to article quiz mode" aria-controls="view-quiz" id="tab-quiz" class="gleis-btn" data-mode="quiz">
+          <div class="gnum mono">GLEIS 2</div>
+          <div class="glabel">Artikel‑Quiz</div>
+          <div class="gsub">Article Quiz</div>
+        </button>
+        <button role="tab" aria-selected="false" aria-label="Switch to sorting game mode" aria-controls="view-sort" id="tab-sort" class="gleis-btn" data-mode="sort">
+          <div class="gnum mono">GLEIS 3</div>
+          <div class="glabel">Sortierbahnhof</div>
+          <div class="gsub">Sorting Game</div>
+        </button>
+      </nav>
+    </header>
+
+    <!-- FILTERS -->
+    <section role="group" aria-label="Filter words by article" class="filters" id="filters">
+      <button role="checkbox" aria-checked="true" aria-label="Show all words" class="chip active" data-g="all">ALL</button>
+      <button role="checkbox" aria-checked="false" aria-label="Show only der words" class="chip" data-g="der">DER</button>
+      <button role="checkbox" aria-checked="false" aria-label="Show only die words" class="chip" data-g="die">DIE</button>
+      <button role="checkbox" aria-checked="false" aria-label="Show only das words" class="chip" data-g="das">DAS</button>
+      <button role="checkbox" aria-checked="false" aria-label="Show only due words" class="chip" data-g="due" style="margin-left:auto;">DUE ONLY</button>
+    </section>
+
+    <!-- MAIN PANEL -->
+    <section class="panel" role="main">
+
+      <!-- MODE 1: FLASHCARDS -->
+      <section role="tabpanel" aria-labelledby="tab-cards" class="mode-view active" id="view-cards">
+        <div class="session-bar">
+          <div class="session-track"><div class="session-fill" id="cardsSessFill"></div></div>
+          <div class="session-count mono" role="status" id="cardsSessCount">0 / 0</div>
+        </div>
+        <div class="card-stage">
+          <div class="flap-card" id="flapCard">
+            <div class="gender-tag" id="cardGenderTag">NOUN</div>
+            <div class="noun-word" id="cardNoun">—</div>
+            <div class="article-slot"><div class="article-flap" id="cardArticleFlap">···</div></div>
+            <div class="translation" id="cardTranslation"></div>
+            <div class="plural-note" id="cardPluralNote"></div>
+            <div class="tap-hint" id="cardHint">Tap "Show article"</div>
+          </div>
+        </div>
+        <button class="reveal-btn" id="revealBtn">SHOW ARTICLE</button>
+        <div class="card-actions" style="margin-top:12px;">
+          <button class="act-btn again" id="againBtn" disabled>↺ Practice again</button>
+          <button class="act-btn know" id="knowBtn" disabled>✓ Got it!</button>
+        </div>
+      </section>
+
+      <!-- MODE 2: QUIZ -->
+      <section role="tabpanel" aria-labelledby="tab-quiz" class="mode-view" id="view-quiz">
+        <div class="quiz-stats"><span>Correct: <b id="quizCorrect">0</b></span><span>Streak: <b id="quizStreak">0</b></span><span>Total: <b id="quizTotal">0</b></span></div>
+        <div class="quiz-word" id="quizNoun">—</div>
+        <div class="quiz-en" id="quizEn"></div>
+        <div class="quiz-feedback" aria-live="polite" id="quizFeedback"></div>
+        <div class="quiz-btns">
+          <button class="qbtn der" data-g="der">DER</button>
+          <button class="qbtn die" data-g="die">DIE</button>
+          <button class="qbtn das" data-g="das">DAS</button>
+        </div>
+        <button class="reveal-btn quiz-next" id="quizNextBtn" style="display:none;">NEXT →</button>
+      </section>
+
+      <!-- MODE 3: SORT GAME -->
+      <section role="tabpanel" aria-labelledby="tab-sort" class="mode-view" id="view-sort">
+        <div class="sort-pre" id="sortPre">
+          <h3>Sortierbahnhof <span style="color:var(--ink-faint); font-weight:500; font-size:13px;">— Sorting Station</span></h3>
+          <p>45 seconds. Words come in — send each one to the right platform: DER, DIE, or DAS. Best score: <b id="sortBestPre" class="mono">0</b></p>
+          <button class="big-btn" id="sortStartBtn">START TRAIN</button>
+        </div>
+        <div id="sortGame" style="display:none; flex:1; flex-direction:column;">
+          <div class="sort-hud">
+            <div class="timer-flap mono" role="status" id="sortTimer">45</div>
+            <div class="score-flap">Score<br><b id="sortScore">0</b></div>
+          </div>
+          <div class="sort-word" id="sortWord">—</div>
+          <div class="quiz-btns">
+            <button class="qbtn der" data-g="der">DER</button>
+            <button class="qbtn die" data-g="die">DIE</button>
+            <button class="qbtn das" data-g="das">DAS</button>
+          </div>
+        </div>
+        <div id="sortResult" class="sort-result" style="display:none;">
+          <div style="font-size:12px; color:var(--ink-faint); letter-spacing:.14em;" class="mono">TRAIN ARRIVED</div>
+          <div class="big-score" id="sortFinalScore">0</div>
+          <div class="sub" id="sortFinalSub">sorted correctly</div>
+          <button class="big-btn" id="sortAgainBtn">PLAY AGAIN</button>
+        </div>
+      </section>
+
+    </section>
+
+    <p class="foot-note">259 nouns · A1/A2 · your progress is saved automatically</p>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/cards.js"></script>
+  <script src="js/quiz.js"></script>
+  <script src="js/sort.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
