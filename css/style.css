@@ -165,7 +165,8 @@ body {
 
 /* ---------- platform tabs (Gleise) ---------- */
 .gleise {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
   margin-top: 14px;
 }
@@ -182,7 +183,6 @@ body {
   transition: border-color .15s, color .15s, background .15s, transform .1s;
   font-family: inherit;
   font-size: inherit;
-  min-width: 0;
 }
 
 .gleis-btn:active {
@@ -220,71 +220,6 @@ body {
 
 .gleis-btn.active .gnum {
   color: var(--amber-dim);
-}
-
-/* ---------- mobile scrollable ---------- */
-@media (max-width: 520px) {
-  .board-head {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 12px 14px;
-    scrollbar-width: thin;
-  }
-  
-  .board-head::-webkit-scrollbar {
-    height: 3px;
-  }
-  
-  .board-head::-webkit-scrollbar-track {
-    background: var(--bg);
-  }
-  
-  .board-head::-webkit-scrollbar-thumb {
-    background: var(--amber-dim);
-    border-radius: 4px;
-  }
-  
-  .head-row {
-    min-width: max-content;
-  }
-  
-  .gleise {
-    min-width: max-content;
-    gap: 6px;
-  }
-  
-  .gleis-btn {
-    flex: 0 0 auto;
-    min-width: 75px;
-    padding: 8px 10px 7px;
-    border-radius: 8px;
-  }
-  
-  .gleis-btn .gnum {
-    font-size: 8px;
-  }
-  
-  .gleis-btn .glabel {
-    font-size: 10px;
-    white-space: nowrap;
-  }
-  
-  .gleis-btn .gsub {
-    display: none;
-  }
-  
-  .filters {
-    min-width: max-content;
-    flex-wrap: nowrap;
-    gap: 4px;
-  }
-  
-  .chip {
-    font-size: 10px;
-    padding: 6px 10px;
-    min-height: 28px;
-    white-space: nowrap;
-  }
 }
 
 /* ---------- filter chips ---------- */
@@ -964,102 +899,102 @@ body {
   padding: 8px 0;
 }
 
-/* ===== MOBILE FIXES ===== */
+/* ---------- mobile navigation fix ---------- */
+/*
+  On small screens the four Gleise tabs become a horizontal,
+  touch-scrollable rail instead of being squeezed into 4 columns.
+*/
+.gleise {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  gap: 8px;
+  padding: 2px 2px 6px;
+  margin-top: 14px;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
 
-/* Small screens (under 480px) */
-@media (max-width: 480px) {
-  .gleise {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
+.gleise::-webkit-scrollbar {
+  display: none;
+}
+
+.gleis-btn {
+  flex: 0 0 145px;
+  min-width: 145px;
+  scroll-snap-align: start;
+}
+
+/* Keep the filter rail usable on narrow phones too. */
+.filters {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 0 4px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.filters::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 600px) {
+  .board-head {
+    padding: 16px 14px 12px;
   }
-  
-  .gleis-btn {
-    padding: 6px 2px 5px;
-    border-radius: 8px;
-  }
-  
-  .gleis-btn .gnum {
-    font-size: 7px;
-  }
-  
-  .gleis-btn .glabel {
-    font-size: 9px;
-  }
-  
-  .gleis-btn .gsub {
-    font-size: 6.5px;
-    display: none; /* ✅ Hide "Flashcards/Quiz/etc" on tiny screens */
-  }
-  
+
   .head-row {
     flex-direction: column;
-    align-items: stretch;
-    gap: 6px;
+    gap: 12px;
   }
-  
+
   .stat-cluster {
+    align-self: stretch;
     justify-content: flex-start;
   }
-  
+
+  .stat-flap {
+    min-width: 58px;
+  }
+
+  .brand-title {
+    font-size: clamp(18px, 6vw, 22px);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+  }
+
+  .brand-sub {
+    font-size: 12px;
+  }
+
+  .panel {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .card-actions {
+    gap: 8px;
+  }
+
+  .act-btn {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 380px) {
+  .gleis-btn {
+    flex-basis: 135px;
+    min-width: 135px;
+  }
+
   .brand-title {
     font-size: 18px;
   }
-  
-  .stat-flap {
-    min-width: 44px;
-    padding: 4px 8px;
-  }
-  
-  .stat-flap .num {
-    font-size: 14px;
-  }
-  
-  .stat-flap .lbl {
-    font-size: 7px;
-  }
 }
 
-/* Tiny screens (under 380px) */
-@media (max-width: 380px) {
-  .gleise {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 3px;
-  }
-  
-  .gleis-btn {
-    padding: 4px 2px 4px;
-    border-radius: 6px;
-  }
-  
-  .gleis-btn .gnum {
-    font-size: 6px;
-  }
-  
-  .gleis-btn .glabel {
-    font-size: 8px;
-  }
-  
-  .gleis-btn .gsub {
-    display: none;
-  }
-  
-  .brand-title {
-    font-size: 16px;
-  }
-  
-  .chip {
-    font-size: 9px;
-    padding: 4px 8px;
-    min-height: 26px;
-  }
-  
-  .noun-word {
-    font-size: 27px;
-  }
-  .quiz-word {
-    font-size: 25px;
-  }
-  .sort-word {
-    font-size: 25px;
-  }
-}
