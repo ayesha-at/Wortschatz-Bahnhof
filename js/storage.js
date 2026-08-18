@@ -8,7 +8,8 @@ let progress = {
   perNoun: {},
   streak: { count: 0, lastDate: null },
   totalReviews: 0,
-  sortBest: 0
+  sortBest: 0,
+  activity: []
 };
 
 // --- Helpers ---
@@ -86,7 +87,22 @@ function bumpStreakIfNeeded() {
     progress.streak.count = 1;
   }
   progress.streak.lastDate = t;
+  recordActivity(t);
   saveProgress();
+}
+
+// --- Activity log (for the streak calendar on the Progress screen) ---
+// Stores one entry per day the app was opened. Capped so it can't grow
+// unbounded over months of daily use — only the last 60 days are kept,
+// which is far more than the 7-day calendar view needs.
+
+function recordActivity(dateStr) {
+  if (!progress.activity.includes(dateStr)) {
+    progress.activity.push(dateStr);
+    if (progress.activity.length > 60) {
+      progress.activity = progress.activity.slice(-60);
+    }
+  }
 }
 
 // --- Stats ---

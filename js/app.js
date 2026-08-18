@@ -11,7 +11,8 @@ const gleisBtns = document.querySelectorAll('.gleis-btn');
 const modeViews = {
   cards: document.getElementById('view-cards'),
   quiz: document.getElementById('view-quiz'),
-  sort: document.getElementById('view-sort')
+  sort: document.getElementById('view-sort'),
+  progress: document.getElementById('view-progress')
 };
 const filterContainer = document.getElementById('filters');
 const chipEls = document.querySelectorAll('.chip');
@@ -87,8 +88,8 @@ gleisBtns.forEach(btn => {
       view.classList.toggle('active', key === mode);
     });
 
-    // Show/hide filters (hide during sort)
-    filterContainer.style.display = mode === 'sort' ? 'none' : 'flex';
+    // Show/hide filters (hide during sort and progress — neither is filterable)
+    filterContainer.style.display = (mode === 'sort' || mode === 'progress') ? 'none' : 'flex';
 
     refreshCurrentMode(mode);
   });
@@ -104,6 +105,7 @@ function refreshCurrentMode(mode) {
     nextCard();
   }
   if (mode === 'quiz') nextQuiz();
+  if (mode === 'progress') renderProgressScreen();
   // Sort doesn't auto-refresh on filter change
 }
 
